@@ -23,5 +23,26 @@ ccsalloc testa.sh
 
 # Download Packages and Preparation
 
+The required packages for this GCC build are:
+
+* nvptx-tools:[^nvptxtools]
+
+[^nvptxtools]: At the time of writing, there is no release of nvptx-tools on
+  GitHub. For reproducibility the `HEAD` was checked out explicitly.
+
+* nvptx-newlib:[^nvptxnewlib]
+
+[^nvptxnewlib]: At the time of writing, there is no release of nvptx-newlib on
+  GitHub. For reproducibility the `HEAD` was checked out explicitly.
+
+* openacc-gcc-9-branch:[^gcc9]
+
+[^gcc9]: This Git-branch is used for development of OpenACC support and related
+  functionality. For more info, see <https://gcc.gnu.org/svn.html>.
+
+It's faster to download these packages from the frontend of OCuLUS at PC².
+`download.sh` is a convenient script to download these packages as well as to
+prepare other setups for our build of GCC with OpenMP for offloading on GPUs.
+
 # Build and Install Packages
 
