@@ -40,9 +40,10 @@ The required packages for this GCC build are:
 [^gcc9]: This Git-branch is used for development of OpenACC support and related
   functionality. For more info, see <https://gcc.gnu.org/svn.html>.
 
-It's faster to download these packages from the frontend of OCuLUS at PC².
-`download.sh` is a convenient script to download these packages as well as to
-prepare other setups for our build of GCC with OpenMP for offloading on GPUs.
+It's faster to download these packages from the frontend nodes of OCuLUS at PC².
+`download.sh` (in `01_download`) is a convenient script to download these
+packages as well as to prepare other setups for our build of GCC with OpenMP for
+offloading on GPUs.
 
 # Build and Install Packages
 
