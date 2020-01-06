@@ -47,3 +47,28 @@ offloading on GPUs.
 
 # Build and Install Packages
 
+## Load CUDA module
+
+Because the GPU-backend of GCC depends on CUDA, we need to load the CUDA module
+on OCuLUS.
+
+```bash
+module load system/CUDA/10.1.105
+```
+
+## Build `nvptx-tools`, accelerator and host GCC compilers
+
+The build scripts can be found in `02_build`. `build.sh` is a driver script for
+`ccsalloc` and `realscript.sh` carries out the real build procedure.
+
+Before running
+
+```bash
+ccsalloc build.sh
+```
+
+it's necessary to adapt some settings in `realscript.sh`, e.g. `CUDADIR`,
+`INSTDIR`, and perhaps `make -j` with an appropriate number of processors,
+to your working system.
+
+Now, we're done.
