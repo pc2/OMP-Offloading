@@ -1,17 +1,23 @@
 ---
-title: accelQuery
+title: dataTransRate
 author: Xin Wu (PC²)
-date: 04.01.2020
+date: 07.01.2020
 ---
 
 # Introduction
 
-`accelQuery` searches accelerator(s) on a heterogeneous computer.
-Accelerator(s), if found, will be enumerated with some basic info.
+`dataTransRate` gives the data transfer rate (in MB/sec) from `src` to `dst`.
+
+The possible situations are:
+
+* h2h: `src` = host  and `dst` = host
+* h2a: `src` = host  and `dst` = accel
+* a2a: `src` = accel and `dst` = accel
 
 # Build
 
 ```bash
+export CUDA_LAUNCH_BLOCKING 1
 autoreconf -i; ./configure; make; make check; sudo make install;
 ```
 

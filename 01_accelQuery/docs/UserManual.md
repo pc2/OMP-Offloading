@@ -1,6 +1,6 @@
 ---
 title: accelQuery
-author: Xin Wu
+author: Xin Wu (PC²)
 date: 04.01.2020
 ---
 
