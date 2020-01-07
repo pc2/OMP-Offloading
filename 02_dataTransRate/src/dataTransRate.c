@@ -22,6 +22,7 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+#include <cuda_runtime.h>
 #include "check1ns.h"
 
 #define TWO27 (1 << 27)
@@ -121,6 +122,20 @@ int main(int argc, char *argv[])
    */
   clock_gettime(CLOCK_REALTIME, rt + 0);
   iret = omp_target_memcpy(adat[1], adat[0], dat512MB, 0x0, 0x0, iaccel, iaccel);
+  /*
+   * The synchronous execution on a heterogeneous computing system can be
+   * enabled by one of the following approaches:
+   *
+   * 1. Set the environment variable `CUDA_LAUNCH_BLOCKING`
+   *
+   * ```bash
+   * export CUDA_LAUNCH_BLOCKING=1
+   * ```
+   *
+   * 2. Use the CUDA API function `cudaDeviceSynchronize()` in this C code.
+   *
+   */
+//cudaDeviceSynchronize();
   clock_gettime(CLOCK_REALTIME, rt + 1);
   if (0 != iret) {
     printf("error: omp_target_memcpy (a2a)\n");
