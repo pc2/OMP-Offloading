@@ -1,0 +1,6 @@
+PROJECT_NAME            =  @PACKAGE_NAME@
+PROJECT_NUMBER          =  @PACKAGE_VERSION@
+INPUT                   =  @top_srcdir@/src
+RECURSIVE               =  YES
+GENERATE_LATEX          =  NO
+QUIET                   =  YES

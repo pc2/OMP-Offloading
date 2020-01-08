@@ -33,3 +33,14 @@
   - src: source code
   - docs: documentation
   - tests: some tests
+
+* 03_taskwait
+
+  `taskwait` checks the `taskwait` construct for the deferred target task.
+  At the time of writing, this hasn't been implemented in the GCC 9.2 compiler.
+
+  The directory tree:
+
+  - src: source code
+  - docs: documentation
+  - tests: some tests
