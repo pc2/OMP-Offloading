@@ -44,3 +44,14 @@
   - src: source code
   - docs: documentation
   - tests: some tests
+
+* 04_scalarAddition
+
+  `scalarAddition` adds two integers on host and accelerator, and also compares
+  the performance.
+
+  The directory tree:
+
+  - src: source code
+  - docs: documentation
+  - tests: some tests
