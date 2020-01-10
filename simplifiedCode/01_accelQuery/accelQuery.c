@@ -3,8 +3,11 @@
  *
  * @brief accelQuery searches accelerator(s) on a heterogeneous computer.
  *
- * gcc -Wall -fopenmp -foffload=nvptx-none accelQuery.c
+ * Host-only:
+ * gcc -Wall -fopenmp -foffload=disable    accelQuery.c
  *
+ * Offload to GPU:
+ * gcc -Wall -fopenmp -foffload=nvptx-none accelQuery.c
  */
 
 #include <stdio.h>
@@ -19,6 +22,10 @@ int main(void)
   } else {
     printf("Hello World from Accelerator.\n");
   }
+  /*
+   * Question: How to FIXME?
+   */
+  printf("%d accelerator found.\n", omp_get_num_devices());
 }
   return 0;
 }
