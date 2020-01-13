@@ -2,10 +2,10 @@
 
 # List of Projects
 
-* 00_build_gcc_offload
+* 00_build_OpenMP_offload
 
-  Documentation and scripts for building GCC with OpenMP support for
-  Nvidia GPU offloading
+  Documentation and scripts for building GCC as well as Clang/LLVM with OpenMP
+  support for Nvidia GPU offloading.
 
 * 01_accelQuery
 
