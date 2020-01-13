@@ -21,9 +21,12 @@ fi
 # check C compiler
 #
 ##############################################################################80
-AC_PROG_CC([cwhatever gcc])
+AC_PROG_CC([clang gcc])
 AS_IF([test "${CC}" = gcc],
   [CFLAGS="-Wall -fopenmp -foffload=nvptx-none -I${CUDAINC} $CFLAGS"
+   LDFLAGS="-L${CUDALIB} $LDFLAGS"])
+AS_IF([test "${CC}" = clang],
+  [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -I${CUDAINC} $CFLAGS"
    LDFLAGS="-L${CUDALIB} $LDFLAGS"])
 ##############################################################################80
 #

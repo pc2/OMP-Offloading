@@ -33,11 +33,14 @@ void hsaxpy(const int n,
 {
   int i;
 
-#pragma omp parallel for simd \
+#pragma omp parallel \
   default(none) shared(n, a, x, y) private(i)
+{
+#pragma omp for simd schedule(simd:static)
   for (i = 0; i < n; i++) {
     y[i] = a * x[i] + y[i];
   }
+}
 }
 
 #ifdef __cplusplus
