@@ -23,7 +23,7 @@ int main(void)
     printf("Hello World from Accelerator.\n");
   }
   /*
-   * Question: How to FIXME?
+   * Question: Why this may give _wrong_ number of accelerators? FIXME
    */
   printf("%d accelerator found.\n", omp_get_num_devices());
 }

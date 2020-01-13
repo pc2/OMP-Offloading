@@ -48,6 +48,11 @@ int main(int argc, char *argv[])
   clock_gettime(CLOCK_REALTIME, rt + 1);
   printf("scalar addition on accel: %ld ns\n", rt[1].tv_nsec - rt[0].tv_nsec);
   /*
+   * Question: How to measure the walltime for H-A data transfer rate? FIXME
+   * Question: How to measure the walltime for a kernel launch on GPU? FIXME
+   * Question: How to monitor this tiny calculation on GPU?            FIXME
+   */
+  /*
    * check the result
    */
   assert(c == z);

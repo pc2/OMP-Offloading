@@ -94,7 +94,7 @@ int main(void)
   clock_gettime(CLOCK_REALTIME, rt + 0);
   iret = omp_target_memcpy(adat[1], adat[0], ndat, 0x0, 0x0, iaccel, iaccel);
   /*
-   * Question: How to FIXME?
+   * Question: How to get the correct A-A data transfer rate? FIXME
    */
   clock_gettime(CLOCK_REALTIME, rt + 1);
   if (0 != iret) {
