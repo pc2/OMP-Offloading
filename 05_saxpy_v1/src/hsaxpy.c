@@ -31,7 +31,7 @@ void hsaxpy(const int n,
             const float *x,
                   float *y)
 {
-  int i;
+  int i = 0;
 
 #pragma omp parallel \
   default(none) shared(n, a, x, y) private(i)

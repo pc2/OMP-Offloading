@@ -35,7 +35,7 @@ void asaxpy(const int n,
             const float *x,
                   float *y)
 {
-  int i;
+  int i = 0;
 #ifdef DEBUG
   int nth;
 #endif
