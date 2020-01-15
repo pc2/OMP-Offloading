@@ -8,6 +8,7 @@
  *
  * Offload to GPU:
  * gcc -Wall -fopenmp -foffload=nvptx-none accelQuery.c
+ *
  */
 
 #include <stdio.h>

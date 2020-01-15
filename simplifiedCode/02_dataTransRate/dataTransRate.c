@@ -10,7 +10,8 @@
  * - a2a: src = accel and dst = accel
  *
  * Offload to GPU:
- * gcc -Wall -fopenmp -foffload=nvptx-none accelQuery.c
+ * gcc -Wall -fopenmp -foffload=nvptx-none dataTransRate.c
+ *
  */
 
 #include <stdio.h>
@@ -75,7 +76,7 @@ int main(void)
     exit(EXIT_FAILURE);
   }
   wt = (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
-  printf(" host    host   %8.1f MB/sec\n", 512.0 / wt);
+  printf(" host    host   %8.1f MB/sec\n", ndat / wt);
   /*
    * h2a
    */
@@ -87,7 +88,7 @@ int main(void)
     exit(EXIT_FAILURE);
   }
   wt = (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
-  printf(" host    accel  %8.1f MB/sec\n", 512.0 / wt);
+  printf(" host    accel  %8.1f MB/sec\n", ndat / wt);
   /*
    * a2a
    */
@@ -102,7 +103,7 @@ int main(void)
     exit(EXIT_FAILURE);
   }
   wt = (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
-  printf(" accel   accel  %8.1f MB/sec\n", 512.0 / wt);
+  printf(" accel   accel  %8.1f MB/sec\n", ndat / wt);
   printf("================================\n\n");
   /*
    * release the data
