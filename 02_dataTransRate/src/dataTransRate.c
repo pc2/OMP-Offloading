@@ -22,7 +22,7 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include <cuda_runtime.h>
+//#include <cuda_runtime.h>
 #include "check1ns.h"
 
 #define TWO27 (1 << 27)
@@ -51,6 +51,15 @@ int main(int argc, char *argv[])
   /*
    * check the number of accelerators
    */
+#pragma omp target
+{
+  /*
+   * There is a bug in Clang/LLVM 9.0.1:
+   *
+   * If an accelerator has not been activated by an OpenMP directive,
+   * omp_get_num_devices() always returns 0, even if there is an accelerator.
+   */
+}
   naccel = omp_get_num_devices();
   if (0 == naccel) {
     printf("No accelerator found ... exit\n");
