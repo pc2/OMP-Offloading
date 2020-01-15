@@ -53,7 +53,8 @@ int main(int argc, char *argv[])
   b = 4;
   c = a + b;
   clock_gettime(CLOCK_REALTIME, rt + 1);
-  printf("scalar addition on host: %ld ns\n", rt[1].tv_nsec - rt[0].tv_nsec);
+  printf("scalar addition on host: %12.9f s\n",
+      (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec));
   /*
    * scalar addition on accelerator
    */
@@ -66,7 +67,8 @@ int main(int argc, char *argv[])
   z = x + y;
 }
   clock_gettime(CLOCK_REALTIME, rt + 1);
-  printf("scalar addition on accelerator: %ld ns\n", rt[1].tv_nsec - rt[0].tv_nsec);
+  printf("scalar addition on accelerator: %12.9f s\n",
+      (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec));
   /*
    * check the result
    */
