@@ -113,7 +113,7 @@ Clang can also be bootstrapped with GNU's `libstdc++` with the following script:
 pkgname="llvmorg-9.0.1"
 curl -L -O https://github.com/llvm/llvm-project/archive/${pkgname}.tar.gz
 tar xf ${pkgname}.tar.gz
-BUILDIR="LIBCXX"
+BUILDIR="LIBSTDCXX"
 rm -fr   $BUILDIR
 mkdir -p $BUILDIR
 cd       $BUILDIR
