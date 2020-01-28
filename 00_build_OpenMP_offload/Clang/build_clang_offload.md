@@ -102,7 +102,6 @@ To access this version of Clang on OCuLUS:
 
 ```bash
 module load clang/9.0.1_BS_libcxx_CUDA10.1
-module load
 ```
 
 # Bootstrap Clang with `libstdc++`
