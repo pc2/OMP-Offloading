@@ -12,7 +12,7 @@ Accelerator(s), if found, will be enumerated with some basic info.
 # Build
 
 ```bash
-autoreconf -i; ./configure; make; make check; sudo make install;
+autoreconf -i; ./configure; make; make check
 ```
 
 `make check` has been tested on OCuLUS (with OpenCCS) and P53s (without OpenCCS).

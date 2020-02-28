@@ -24,6 +24,10 @@ int main(int argc, char *argv[])
 {
   int iaccel, naccel;
 
+  /*
+   * NOTE: The behavior of an OpenMP API function may be defined differently
+   * for inside and outside of the target region.
+   */
 #pragma omp target
 {
   if (omp_is_initial_device()) {
