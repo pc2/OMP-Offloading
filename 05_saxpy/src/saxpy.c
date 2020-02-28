@@ -4,7 +4,7 @@
  * @mainpage saxpy
  *
  * @author Xin Wu (PC²)
- * @date 15.01.2020
+ * @date 09.01.2020
  * @copyright GNU GPL
  *
  * saxpy performs the \c axpy operation on host as well as accelerator and then
@@ -23,8 +23,9 @@
  * designed, so that the floating-point calculations on host and accelerator can
  * be compared \e exactly.
  *
- * Please note that only <em>one team of GPU threads</em> is used for the
- * \c axpy calculation on accelerator in this version.
+ * Please note that only <em>one GPU thread</em> is used for the \c axpy
+ * calculation on accelerator in this version. This can be verified by uncomment
+ * the \c CFLAGS line in \c configure.ac.
  */
 
 #include <assert.h>
@@ -48,21 +49,14 @@
  */
 int main(int argc, char *argv[])
 {
-  // host
   int   i, n = TWO27,
-        iret = 0,
-        ngth; /* number of GPU threads */
+        iret = 0;
   float a = 101.0f / TWO02,
         *x, *y,
             *z;
   struct timespec rt[2];
   double wt; // walltime
 
-  /*
-   * Read command line argument and set the number of GPU threads.
-   */
-  ngth = atoi(argv[1]);
-  printf("%d GPU threads will be launched for the asaxpy function\n", ngth);
   /*
    * We need 1 ns time resolution.
    */
@@ -115,7 +109,7 @@ int main(int argc, char *argv[])
    * saxpy on accel
    */
   clock_gettime(CLOCK_REALTIME, rt + 0);
-  asaxpy(n, a, x, z, ngth);
+  asaxpy(n, a, x, z);
   clock_gettime(CLOCK_REALTIME, rt + 1);
   wt = (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
   printf("saxpy on accel: %9.3f sec %9.1f MFLOPS\n", wt, 2.0 * n / (1.0e6 * wt));
