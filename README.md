@@ -30,10 +30,19 @@ Paderborn University. The sub-directories are generally organized as:
   * h2a: `src` = host  and `dst` = accel
   * a2a: `src` = accel and `dst` = accel
 
+  NOTE:
+
+  * A bug in Clang 9.0.1 has been fixed in Clang 11.
+  * The data transfer rata for `a2a` is still lower than our expectation.
+
 * 03_taskwait
 
   `taskwait` checks the `taskwait` construct for the deferred target task.
-  At the time of writing, this hasn't been implemented in the GCC 9.2 compiler.
+
+  NOTE:
+
+  * Asynchronous offloading hasn't been implemented in the GCC 9.2 compiler.
+  * Asynchronous offloading is available in Clang 11.
 
 * 04_scalarAddition
 
