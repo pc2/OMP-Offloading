@@ -18,7 +18,7 @@ The possible situations are:
 
 ```bash
 export CUDA_LAUNCH_BLOCKING 1
-autoreconf -i; ./configure; make; make check; sudo make install;
+autoreconf -i; ./configure; make; make check
 ```
 
 `make check` has been tested on OCuLUS (with OpenCCS) and P53s (without OpenCCS).
