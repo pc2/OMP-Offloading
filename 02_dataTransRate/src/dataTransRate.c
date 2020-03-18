@@ -4,8 +4,8 @@
  * @mainpage dataTransRate
  *
  * @author Xin Wu (PC²)
- * @date 07.01.2020
- * @copyright GNU GPL
+ * @date 12.03.2020
+ * @copyright CC BY-SA 2.0
  *
  * dataTransRate gives the data transfer rate (in MB/sec) from src to dst.
  *

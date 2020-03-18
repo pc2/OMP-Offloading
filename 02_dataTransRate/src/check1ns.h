@@ -6,8 +6,8 @@
  * resolution on the system.
  *
  * @author Xin Wu (PC²)
- * @date 07.01.2020
- * @copyright GNU GPL
+ * @date 12.03.2020
+ * @copyright CC BY-SA 2.0
  */
 
 #ifdef __cplusplus

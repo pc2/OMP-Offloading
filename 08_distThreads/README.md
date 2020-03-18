@@ -1,12 +1,13 @@
 ---
-title: dataTransRate
+title: distThreads
 author: Xin Wu (PC²)
-date: 07.01.2020
+date: 12.03.2020
 ---
 
 # Introduction
 
-`dataTransRate` gives the data transfer rate (in MB/sec) from `src` to `dst`.
+`distThreads` demonstrates the organization of threads and teams in a league on
+GPU.
 
 The possible situations are:
 
