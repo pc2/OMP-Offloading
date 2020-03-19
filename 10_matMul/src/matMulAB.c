@@ -184,6 +184,7 @@ for (int i = 0; i < n; ++i) {
 /*
  * - jik-loop
  * - 2^7 threads per team and 2^15 teams
+ * - collapse(3)
  * - 4x i-loop unrolling
  *      * 2x by number of threads
  *      * 2x by half of rows
@@ -239,7 +240,8 @@ for (int i = iblk * NTHRDS8;
     case 6:
 /*
  * - jik-loop
- * - 2^7 threads per team and 2^15 teams
+ * - 2^7 threads per team and 2^14 teams
+ * - collapse(3)
  * - 2x j-loop unrolling by half of cols
  * - 4x i-loop unrolling
  *      * 2x by number of threads
@@ -256,7 +258,7 @@ for (int j = 0; j < halfn; ++j) { /* 2x unrolling */
 for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) { /* 4x unrolling */
 for (int i = iblk * NTHRDS8;
          i < iblk * NTHRDS8 + NTHRDS7; ++i) {
-  /* 2x j-loop * 4x i-loop */
+  /* register for c: 2x j-loop * 4x i-loop */
   float rc0, rc1, rc2, rc3,
         rc4, rc5, rc6, rc7;
   rc0 = c[ j          * n + i                  ];
@@ -268,10 +270,10 @@ for (int i = iblk * NTHRDS8;
   rc6 = c[(j + halfn) * n + i           + halfn];
   rc7 = c[(j + halfn) * n + i + NTHRDS7 + halfn];
   for (int k = 0; k < n; k += 4) { /* 4x unrolling */
-    /* 2x j-loop * 4x k-loop */
+    /* register for b: 2x j-loop * 4x k-loop */
     float rb0, rb1, rb2, rb3,
           rb4, rb5, rb6, rb7;
-    /* 4x i-loop * 4x k-loop */
+    /* register for a: 4x i-loop * 4x k-loop */
     float ra0, ra1, ra2, ra3,
           ra4, ra5, ra6, ra7,
           ra8, ra9, raa, rab,
@@ -300,7 +302,9 @@ for (int i = iblk * NTHRDS8;
     rad = a[(k + 1) * n + i + NTHRDS7 + halfn];
     rae = a[(k + 2) * n + i + NTHRDS7 + halfn];
     raf = a[(k + 3) * n + i + NTHRDS7 + halfn];
-
+    /*
+     * register blocking
+     */
     rc0+= ra0 * rb0
         + ra1 * rb1
         + ra2 * rb2
@@ -347,7 +351,8 @@ for (int i = iblk * NTHRDS8;
 }
       break;
     default:
-/** CUBLAS
+/*
+ * cublasSgemm in CUBLAS
  */
   if (CUBLAS_STATUS_SUCCESS != cublasCreate(&handle)) {
     printf("error: initialization (CUBLAS)\n");

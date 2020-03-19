@@ -19,26 +19,26 @@ numerical results are also verified.
 
 | ial |  Remarks                                                               |
 |:---:|------------------------------------------------------------------------|
-|  0  | jik-loop, 2^9 threads x 2^3 teams,                                     |
+|  0  | jik-loop, 2^9 threads * 2^3 teams,                                     |
 |     | uncoalesced memory access                                              |
-|  1  | jki-loop, 2^9 threads x 2^3 teams,                                     |
+|  1  | jki-loop, 2^9 threads * 2^3 teams,                                     |
 |     | uncoalesced memory access, uncoalesced r&w in innermost loop           |
-|  2  | jik-loop, 2^9 threads x 2^f teams, collapse(2)                         |
-|  3  | jki-loop, 2^9 threads x 2^f teams, collapse(2),                        |
+|  2  | jik-loop, 2^9 threads * 2^f teams, collapse(2)                         |
+|  3  | jki-loop, 2^9 threads * 2^f teams, collapse(2),                        |
 |     | race condition for writing c!                                          |
-|  4  | jik-loop, 2^9 threads x 2^f teams, collapse(2),                        |
+|  4  | jik-loop, 2^9 threads * 2^f teams, collapse(2),                        |
 |     | 4x k-loop unrolling                                                    |
-|  5  | jik-loop, 2^9 threads x 2^f teams, collapse(3),                        |
+|  5  | jik-loop, 2^7 threads * 2^f teams, collapse(3),                        |
 |     | 4x i-loop unrolling (2x + 2x),                                         |
 |     | 4x k-loop unrolling,                                                   |
 |     | rb: 4x data reuse                                                      |
-|  6  | jik-loop, 2^9 threads x 2^f teams, collapse(3),                        |
+|  6  | jik-loop, 2^7 threads * 2^e teams, collapse(3),                        |
 |     | 2x j-loop unrolling,                                                   |
 |     | 4x i-loop unrolling (2x + 2x),                                         |
 |     | 4x k-loop unrolling,                                                   |
 |     | ra: 2x data reuse,                                                     |
 |     | rb: 4x data reuse                                                      |
-|  7  | CUBLAS                                                                 |
+|  7  | cublasSgemm in CUBLAS                                                  |
 
 # Usage
 
