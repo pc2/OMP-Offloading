@@ -10,11 +10,11 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 ##############################################################################80
 AC_ARG_VAR([CUDAINC], [The PATH wherein cuda_runtime.h can be found])
 if test -z "${CUDAINC}"; then
-  AC_SUBST([CUDAINC], [/usr/local/cuda/include])
+  AC_SUBST([CUDAINC], [${CUDA_ROOT}/include])
 fi
 AC_ARG_VAR([CUDALIB], [The PATH wherein libcudart.so can be found])
 if test -z "${CUDALIB}"; then
-  AC_SUBST([CUDALIB], [/usr/local/cuda/lib64])
+  AC_SUBST([CUDALIB], [${CUDA_ROOT}/lib64])
 fi
 ##############################################################################80
 #

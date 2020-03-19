@@ -1,7 +1,7 @@
 AC_PREREQ([2.63])
-AC_INIT([scalarAddition], [1.0], [xinwu@mail.uni-paderborn.de])
+AC_INIT([matMul], [1.0], [xinwu@mail.uni-paderborn.de])
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_SRCDIR([src/scalarAddition.c])
+AC_CONFIG_SRCDIR([src/matMul.c])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 ##############################################################################80
 #
@@ -18,17 +18,30 @@ if test -z "${CUDALIB}"; then
 fi
 ##############################################################################80
 #
+# check MKL
+#
+##############################################################################80
+AC_ARG_VAR([MKLINC], [The PATH wherein mkl.h can be found])
+if test -z "${MKLINC}"; then
+  AC_SUBST([MKLINC], [${MKLROOT}/include])
+fi
+AC_ARG_VAR([MKLLIB], [The PATH wherein MKL library can be found])
+if test -z "${MKLLIB}"; then
+  AC_SUBST([MKLLIB], [${MKLROOT}/lib/intel64])
+fi
+##############################################################################80
+#
 # check C compiler
 #
 ##############################################################################80
 AC_PROG_CC([clang gcc])
 AS_IF([test "${CC}" = gcc],
-  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none -I${CUDAINC} $CFLAGS"
-   LDFLAGS="-L${CUDALIB} $LDFLAGS"])
+  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none -I${CUDAINC} -I${MKLINC} $CFLAGS"
+   LDFLAGS="-L${CUDALIB} -L${MKLLIB} -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core $LDFLAGS"])
 AS_IF([test "${CC}" = clang],
   [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -I${CUDAINC} \
-   -Xopenmp-target -march=sm_61 $CFLAGS"
-   LDFLAGS="-L${CUDALIB} $LDFLAGS"])
+   -I${MKLINC} -Xopenmp-target -march=sm_61 $CFLAGS"
+   LDFLAGS="-L${CUDALIB} -L${MKLLIB} -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core $LDFLAGS"])
 ##############################################################################80
 #
 # check archiver
@@ -43,6 +56,10 @@ AM_PROG_AR
 ##############################################################################80
 AC_CHECK_HEADER([cuda_runtime.h], [],
   [AC_MSG_ERROR([cuda_runtime.h required, but not found])], [])
+AC_CHECK_HEADER([cublas_v2.h], [],
+  [AC_MSG_ERROR([cublas_v2.h required, but not found])], [])
+AC_CHECK_HEADER([mkl.h], [],
+  [AC_MSG_ERROR([mkl.h required, but not found])], [])
 ##############################################################################80
 #
 # check libraries
@@ -50,6 +67,12 @@ AC_CHECK_HEADER([cuda_runtime.h], [],
 ##############################################################################80
 AC_CHECK_LIB([cudart], [cudaSetDevice], [],
   [AC_MSG_ERROR([libcudart required, but not found])], [])
+AC_CHECK_LIB([cublas], [cublasSgemm], [],
+  [AC_MSG_ERROR([libcublas required, but not found])], [])
+AC_CHECK_LIB([iomp5], [omp_set_num_threads], [],
+  [AC_MSG_ERROR([libiomp5 required, but not found])], [])
+AC_CHECK_LIB([pthread], [pthread_create], [],
+  [AC_MSG_ERROR([libpthread required, but not found])], [])
 ##############################################################################80
 #
 # check Doxygen
