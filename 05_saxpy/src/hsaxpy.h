@@ -14,7 +14,7 @@
  *
  * @author Xin Wu (PC²)
  * @date 09.01.2020
- * @copyright GNU GPL
+ * @copyright CC BY-SA 2.0
  */
 
 #ifdef __cplusplus

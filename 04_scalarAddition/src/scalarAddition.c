@@ -5,7 +5,7 @@
  *
  * @author Xin Wu (PC²)
  * @date 08.01.2020
- * @copyright GNU GPL
+ * @copyright CC BY-SA 2.0
  *
  * scalarAddition adds two integers on host and accelerator, and also compares
  * the performance.
