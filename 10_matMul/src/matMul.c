@@ -23,7 +23,7 @@
 #include "mkl.h"
 #include "matMulAB.h"
 
-#define NLUP (16)
+#define NLUP (32)
 
 /**
  * @brief Main entry point for matMul.
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   }
   printf("matrix dim: %d x %d\ntime averaged over %d loops\n", n, n, NLUP);
   /*
-   * matMul on host
+   * matMul on host (chost will be used as ref. value for checking caccl)
    */
   memcpy(chost, c, n2bytes);
   cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
@@ -75,8 +75,7 @@ int main(int argc, char *argv[])
   /*
    * matMul on accl
    */
-  for (ial = 0; ial <99; ial++) {
-    wtcalc = -1.0;
+  for (ial = 0; ial < 9; ial++) {
     /* 
      * See matMulAB.c for details:
      *
@@ -111,13 +110,17 @@ int main(int argc, char *argv[])
      * otherwise: cublasSgemm in CUBLAS
      */
     memcpy(caccl, c, n2bytes);
-    matMulAB_accl(a, b, caccl, n, ial); // 1st run not counted
+    wtcalc = -1.0;
+    // skip 1st run for timing
+    matMulAB_accl(a, b, caccl, n, ial);
+    // check caccl
     maxabserr = -1.0f;
     for (idx = 0; idx < n * n; idx++) {
       maxabserr = fabsf(caccl[idx] - chost[idx]) > maxabserr?
                   fabsf(caccl[idx] - chost[idx]) : maxabserr;
     }
-    matMulAB_accl(a, b, caccl, n, ial); // 2nd run not counted
+    // skip 2nd run for timing
+    matMulAB_accl(a, b, caccl, n, ial);
     // timing : start
     wtcalc = 0.0;
     clock_gettime(CLOCK_REALTIME, rt + 0);
@@ -126,15 +129,9 @@ int main(int argc, char *argv[])
     }
     clock_gettime(CLOCK_REALTIME, rt + 1);
     wt=(rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
-    printf("matmulAB on accl (%d) : %9.1f GFLOPS; maxabserr = %9.6f",
-        ial, NLUP * 2.0e-9 * n * n * n / wt, maxabserr);
-    if (wtcalc > 0.0) {
-      ial = 100;
-      printf("; %9.1f GFLOPS\n", NLUP * 2.0e-9 * n * n * n / wtcalc);
-      printf("\nTschüß\n");
-    } else {
-      printf("\n");
-    }
+    printf("matMulAB (%d) : %9.1f GFLOPS %9.1f GFLOPS maxabserr = %9.1f\n", ial,
+        NLUP * 2.0e-9 * n * n * n / wt, NLUP * 2.0e-9 * n * n * n / wtcalc,
+        maxabserr);
   }
   /*
    * release memory

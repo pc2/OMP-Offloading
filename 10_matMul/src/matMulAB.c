@@ -60,6 +60,10 @@ void matMulAB_accl(float *a,
  * - n-stride memory read  for b (innermost loop)
  * - n-stride memory write for c
  */
+#pragma omp target data  device(0) \
+  map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSF) \
   map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n)
@@ -74,7 +78,9 @@ for (int i = 0; i < n; ++i) { /* sequential */
     rc += a[k * n + i] * b[j * n + k];
   }
   c[j * n + i] = rc;
-}
+} /* end i-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     case 1:
@@ -85,6 +91,10 @@ for (int i = 0; i < n; ++i) { /* sequential */
  * - n-stride memory read  for c (innermost loop)
  * - n-stride memory write for c (innermost loop)
  */
+#pragma omp target data  device(0) \
+  map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSF) \
   map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n)
@@ -98,7 +108,9 @@ for (int k = 0; k < n; ++k) { /* sequential */
   for (int i = 0; i < n; ++i) {
     c[j * n + i] += a[k * n + i] * rb; /* uncoalesced r&w */
   }
-}
+} /* end k-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     case 2:
@@ -108,6 +120,10 @@ for (int k = 0; k < n; ++k) { /* sequential */
  * - collapse(2)
  * - no race condition
  */
+#pragma omp target data  device(0) \
+  map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSF) \
   map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n)
@@ -122,7 +138,9 @@ for (int i = 0; i < n; ++i) { /* parallel */
     rc += a[k * n + i] * b[j * n + k];
   }
   c[j * n + i] = rc;
-}
+} /* end i-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     case 3:
@@ -133,6 +151,10 @@ for (int i = 0; i < n; ++i) { /* parallel */
  * - race condition for writing c: not only one thread has the index j, a total
  *   of n GPU threads has the index j. (n / 32) warps are then scheduled on GPU.
  */
+#pragma omp target data  device(0) \
+  map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSF) \
   map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n)
@@ -146,7 +168,9 @@ for (int k = 0; k < n; ++k) { /* parallel */
   for (int i = 0; i < n; ++i) {
     c[j * n + i] += a[k * n + i] * rb; /* race condition between diff. warps */
   }
-}
+} /* end k-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     case 4:
@@ -155,6 +179,10 @@ for (int k = 0; k < n; ++k) { /* parallel */
  * - 2^9 threads per team and 2^15 teams
  * - 4x k-loop unrolling
  */
+#pragma omp target data  device(0) \
+  map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSF) \
   map(to:n, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n)
@@ -177,7 +205,9 @@ for (int i = 0; i < n; ++i) {
         + a[(k + 3) * n + i] * rb3;
   }
   c[j * n + i] = rc;
-}
+} /* end i-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     case 5:
@@ -191,6 +221,10 @@ for (int i = 0; i < n; ++i) {
  * - 4x k-loop unrolling
  * - rb: 4x data reuse
  */
+#pragma omp target data  device(0) \
+  map(to:n, halfn, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSF) \
   map(to:n, halfn, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n, halfn)
@@ -233,8 +267,10 @@ for (int i = iblk * NTHRDS8;
   c[j * n + i + NTHRDS7        ] = rc1;
   c[j * n + i           + halfn] = rc2;
   c[j * n + i + NTHRDS7 + halfn] = rc3;
-}
-}
+} /* end i-loop */
+} /* end iblk-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     case 6:
@@ -248,6 +284,10 @@ for (int i = iblk * NTHRDS8;
  *      * 2x by half of rows
  * - 4x k-loop unrolling
  */
+#pragma omp target data  device(0) \
+  map(to:n, halfn, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
 #pragma omp target teams device(0) num_teams(LTEAMSE) \
   map(to:n, halfn, a[0:n * n], b[0:n * n]) map(tofrom:c[0:n * n]) \
   default(none) shared(a, b, c, n, halfn)
@@ -346,8 +386,10 @@ for (int i = iblk * NTHRDS8;
   c[(j + halfn) * n + i + NTHRDS7        ] = rc5;
   c[(j + halfn) * n + i           + halfn] = rc6;
   c[(j + halfn) * n + i + NTHRDS7 + halfn] = rc7;
-}
-}
+} /* end i-loop */
+} /* end iblk-loop */
+} /* end j-loop */
+  clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
     default:
@@ -390,9 +432,6 @@ for (int i = iblk * NTHRDS8;
     exit(EXIT_FAILURE);
   }
   clock_gettime(CLOCK_REALTIME, rt + 1);
-  if (wtcalc >= 0.0) {
-    wtcalc += (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
-  }
   if (CUBLAS_STATUS_SUCCESS != cublasGetMatrix(n, n, sizeof(*c), c_dev, n, c, n)) {
     printf("error: accl --> host (CUBLAS)\n");
     cudaFree(a_dev); cudaFree(b_dev); cudaFree(c_dev);
@@ -402,6 +441,9 @@ for (int i = iblk * NTHRDS8;
   cudaFree(a_dev); cudaFree(b_dev); cudaFree(c_dev);
   cublasDestroy(handle);
       break;
+  } /* end switch (ial) */
+  if (wtcalc >= 0.0) {
+    wtcalc += (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
   }
 }
 
