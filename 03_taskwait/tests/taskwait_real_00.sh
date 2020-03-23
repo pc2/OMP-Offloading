@@ -4,6 +4,7 @@
 #CCS -g pc2-mitarbeiter
 #CCS --res=rset=1:ncpus=1:mem=4g:vmem=8g:gtx1080=2
 
+echo "hallo from $(hostname)"
 if [ 0 -eq 1 ]; then
 #
 # Asynchronous offloading is not available in GCC 9.2.0.
