@@ -1,0 +1,12 @@
+hallo from gpu013
+matrix dim: 4096 x 4096
+time averaged over 16 loops
+matMulAB (0) :      24.9 GFLOPS      25.4 GFLOPS maxabserr =       0.0
+matMulAB (1) :      10.0 GFLOPS      10.0 GFLOPS maxabserr =       0.0
+matMulAB (2) :     193.6 GFLOPS     229.2 GFLOPS maxabserr =       0.0
+matMulAB (3) :       5.0 GFLOPS       5.1 GFLOPS maxabserr =    1017.8
+matMulAB (4) :     182.2 GFLOPS     213.7 GFLOPS maxabserr =       0.0
+matMulAB (5) :     370.7 GFLOPS     529.6 GFLOPS maxabserr =       0.0
+matMulAB (6) :     540.0 GFLOPS     962.0 GFLOPS maxabserr =       0.0
+matMulAB (7) :    1028.2 GFLOPS   10463.3 GFLOPS maxabserr =       0.0
+matMulAB (8) :    1007.7 GFLOPS   10468.4 GFLOPS maxabserr =       0.0

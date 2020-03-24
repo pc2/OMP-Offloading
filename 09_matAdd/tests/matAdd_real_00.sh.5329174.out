@@ -1,0 +1,11 @@
+hallo from gpu029
+matrix dim: 4096 x 4096
+time averaged over 64 loops
+matAddAB (0) :       2.0 GB/s      86.6 GB/s maxabserr =       0.0
+matAddAB (1) :       2.0 GB/s      35.8 GB/s maxabserr =       0.0
+matAddAB (2) :       2.0 GB/s      49.1 GB/s maxabserr =       0.0
+matAddAB (3) :       2.1 GB/s     179.9 GB/s maxabserr =       0.0
+matAddAB (4) :       2.1 GB/s     180.1 GB/s maxabserr =       0.0
+matAddAB (5) :       2.0 GB/s     180.8 GB/s maxabserr =       0.0
+matAddAB (6) :       2.1 GB/s     184.1 GB/s maxabserr =       0.0
+matAddAB (7) :       2.0 GB/s     180.8 GB/s maxabserr =       0.0

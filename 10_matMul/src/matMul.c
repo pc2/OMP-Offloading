@@ -23,7 +23,7 @@
 #include "mkl.h"
 #include "matMulAB.h"
 
-#define NLUP (32)
+#define NLUP (16)
 
 /**
  * @brief Main entry point for matMul.
@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
   /*
    * matMul on accl
    */
-  for (ial = 0; ial < 9; ial++) {
-    /* 
+  for (ial = 0; ial < 9; ++ial) {
+    /*
      * See matMulAB.c for details:
      *
      * ial:

@@ -22,7 +22,6 @@ extern "C" {
 #include <omp.h>
 #endif
 #include <cuda_runtime.h>
-#include "mkl.h"
 #include "cublas_v2.h"
 #include "matMulAB.h"
 
