@@ -70,3 +70,20 @@ Paderborn University. The sub-directories are generally organized as:
   Please note that only _one GPU thread_ is used for the `axpy` calculation on
   accelerator in this version. This can be verified by uncomment the `CFLAGS`
   line in `configure.ac`.
+
+* 08_distThreads
+
+  `distThreads` demonstrates the organization of threads and teams in a league
+  on GPU.
+
+* 09_matAdd
+
+  `matAdd` performs matrix addition (A +=B) in single-precision on GPU. The
+  performance (in GB/s) for different implementations is compared and the
+  numerical results are also verified.
+
+* 10_matMul
+
+  `matMul` performs matrix multiplication in single-precision on GPU. The
+  performance (in GFLOPS) for different implementations is compared and the
+  numerical results are also verified.
