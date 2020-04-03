@@ -91,6 +91,7 @@ Configuration:
   CC      : ${CC}
   CFLAGS  : ${CFLAGS}
   LDFLAGS : ${LDFLAGS}
+  LIBS    : ${LIBS}
 
 //============================================================================80
 
