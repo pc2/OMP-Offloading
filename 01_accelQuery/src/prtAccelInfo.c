@@ -14,8 +14,19 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <cuda_runtime.h>
 #include "prtAccelInfo.h"
+
+#define CUDAErrorCheck(funcall)                                         \
+do {                                                                    \
+  cudaError_t ierr = funcall;                                           \
+  if (cudaSuccess != ierr) {                                            \
+    fprintf(stderr, "%s(line %d) : CUDA RT API error : %s(%d) -> %s\n", \
+    __FILE__, __LINE__, #funcall, ierr, cudaGetErrorString(ierr));      \
+    exit(ierr);                                                         \
+  }                                                                     \
+} while (0)
 
 static inline int _corePerSM(int major, int minor)
 /**
@@ -29,32 +40,27 @@ static inline int _corePerSM(int major, int minor)
  * @return The number of CUDA cores per SM.
  */
 {
-  int i;
-  typedef struct {
-    int SM; // 0xMm (hex notation): M = SM Major version; m = SM minor version;
-    int Cores;
-  } sSMtoCores;
-  sSMtoCores nGpuArchCoresPerSM[] = {
-      {0x30, 192},
-      {0x32, 192},
-      {0x35, 192},
-      {0x37, 192},
-      {0x50, 128},
-      {0x52, 128},
-      {0x53, 128},
-      {0x60,  64},
-      {0x61, 128},
-      {0x62, 128},
-      {0x70,  64},
-      {0x72,  64},
-      {0x75,  64},
-      {-1, -1}};
-
-  for (i = 0; nGpuArchCoresPerSM[i].SM != -1; i++) {
-    if (nGpuArchCoresPerSM[i].SM == ((major << 4) + minor))
-      return nGpuArchCoresPerSM[i].Cores;
+  if (1 == major) {
+    if (0 == minor || 1 == minor || 2 == minor || 3 == minor) return 8;
   }
-  return 999999; // Give an unreasonable value, if no value was found.
+  if (2 == major) {
+    if (0 == minor) return 32;
+    if (1 == minor) return 48;
+  }
+  if (3 == major) {
+    if (0 == minor || 5 == minor || 7 == minor) return 192;
+  }
+  if (5 == major) {
+    if (0 == minor || 2 == minor) return 128;
+  }
+  if (6 == major) {
+    if (0 == minor) return 64;
+    if (1 == minor || 2 == minor) return 128;
+  }
+  if (7 == major) {
+    if (0 == minor || 2 == minor || 5 == minor) return 64;
+  }
+  return -1;
 }
 
 void prtAccelInfo(int iaccel)
@@ -62,8 +68,8 @@ void prtAccelInfo(int iaccel)
   int corePerSM;
   struct cudaDeviceProp dev;
 
-  cudaSetDevice(iaccel);
-  cudaGetDeviceProperties(&dev, iaccel);
+  CUDAErrorCheck(cudaSetDevice(iaccel));
+  CUDAErrorCheck(cudaGetDeviceProperties(&dev, iaccel));
   corePerSM = _corePerSM(dev.major, dev.minor);
   printf("\n");
   printf("============================================================\n");
