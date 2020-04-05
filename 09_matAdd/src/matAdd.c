@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   }
 #pragma omp parallel for default(none) \
   shared(a, b, ahost, aaccl, n) private(idx)
-  for (idx = 0; idx < n * n; idx++) {
+  for (idx = 0; idx < n * n; ++idx) {
     a[idx] = rand() % 32 / 32.0f;
     b[idx] = rand() % 32 / 32.0f;
     ahost[idx] = 0.0f;
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     matAddAB_accl(aaccl, b, n, ial);
     // check aaccl
     maxabserr = -1.0f;
-    for (idx = 0; idx < n * n; idx++) {
+    for (idx = 0; idx < n * n; ++idx) {
       maxabserr = fabsf(aaccl[idx] - ahost[idx]) > maxabserr?
                   fabsf(aaccl[idx] - ahost[idx]) : maxabserr;
     }

@@ -34,14 +34,15 @@ fi
 # check C compiler
 #
 ##############################################################################80
+CFLAGS+="-I${CUDAINC} -I${MKLINC}"
+LDFLAGS+="-L${CUDALIB} -L${MKLLIB}"
+#
 AC_PROG_CC([clang gcc])
 AS_IF([test "${CC}" = gcc],
-  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none -I${CUDAINC} -I${MKLINC} $CFLAGS"
-   LDFLAGS="-L${CUDALIB} -L${MKLLIB} -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core $LDFLAGS"])
+  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none $CFLAGS"])
 AS_IF([test "${CC}" = clang],
-  [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -I${CUDAINC} \
-   -I${MKLINC} -Xopenmp-target -march=sm_61 $CFLAGS"
-   LDFLAGS="-L${CUDALIB} -L${MKLLIB} -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core $LDFLAGS"])
+  [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda \
+           -Xopenmp-target -march=sm_61 $CFLAGS"])
 ##############################################################################80
 #
 # check archiver
@@ -69,10 +70,19 @@ AC_CHECK_LIB([cudart], [cudaSetDevice], [],
   [AC_MSG_ERROR([libcudart required, but not found])], [])
 AC_CHECK_LIB([cublas], [cublasSgemm], [],
   [AC_MSG_ERROR([libcublas required, but not found])], [])
-AC_CHECK_LIB([iomp5], [omp_set_num_threads], [],
-  [AC_MSG_ERROR([libiomp5 required, but not found])], [])
 AC_CHECK_LIB([pthread], [pthread_create], [],
   [AC_MSG_ERROR([libpthread required, but not found])], [])
+AC_CHECK_LIB([iomp5], [omp_set_num_threads], [],
+  [AC_MSG_ERROR([libiomp5 required, but not found])], [])
+AC_CHECK_LIB([mkl_core], [mkl_blas_xsgemm], [],
+  [AC_MSG_ERROR([libmkl_core required, but not found])],
+  [-lmkl_intel_lp64 -lmkl_intel_thread -liomp5 -lm])
+AC_CHECK_LIB([mkl_intel_thread], [mkl_blas_sgemm], [],
+  [AC_MSG_ERROR([libmkl_intel_thread required, but not found])],
+  [-lmkl_intel_lp64 -lmkl_core -liomp5 -lm])
+AC_CHECK_LIB([mkl_intel_lp64], [sgemm], [],
+  [AC_MSG_ERROR([libmkl_intel_lp64 required, but not found])],
+  [-lmkl_intel_thread -lmkl_core -liomp5 -lm])
 ##############################################################################80
 #
 # check Doxygen
