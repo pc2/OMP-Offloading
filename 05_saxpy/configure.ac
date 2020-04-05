@@ -18,18 +18,31 @@ if test -z "${CUDALIB}"; then
 fi
 ##############################################################################80
 #
+# check MKL
+#
+##############################################################################80
+AC_ARG_VAR([MKLINC], [The PATH wherein mkl.h can be found])
+if test -z "${MKLINC}"; then
+  AC_SUBST([MKLINC], [${MKLROOT}/include])
+fi
+AC_ARG_VAR([MKLLIB], [The PATH wherein MKL library can be found])
+if test -z "${MKLLIB}"; then
+  AC_SUBST([MKLLIB], [${MKLROOT}/lib/intel64])
+fi
+##############################################################################80
+#
 # check C compiler
 #
 ##############################################################################80
+CFLAGS+="-I${CUDAINC} -I${MKLINC}"
+LDFLAGS+="-L${CUDALIB} -L${MKLLIB}"
+#
 AC_PROG_CC([clang gcc])
-##CFLAGS+=" -DDEBUG"
 AS_IF([test "${CC}" = gcc],
-  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none -I${CUDAINC} $CFLAGS"
-   LDFLAGS="-L${CUDALIB} $LDFLAGS"])
+  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none $CFLAGS"])
 AS_IF([test "${CC}" = clang],
-  [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -I${CUDAINC} \
-   -Xopenmp-target -march=sm_61 $CFLAGS"
-   LDFLAGS="-L${CUDALIB} $LDFLAGS"])
+  [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda \
+           -Xopenmp-target -march=sm_61 $CFLAGS"])
 ##############################################################################80
 #
 # check archiver
@@ -44,6 +57,10 @@ AM_PROG_AR
 ##############################################################################80
 AC_CHECK_HEADER([cuda_runtime.h], [],
   [AC_MSG_ERROR([cuda_runtime.h required, but not found])], [])
+AC_CHECK_HEADER([cublas_v2.h], [],
+  [AC_MSG_ERROR([cublas_v2.h required, but not found])], [])
+AC_CHECK_HEADER([mkl.h], [],
+  [AC_MSG_ERROR([mkl.h required, but not found])], [])
 ##############################################################################80
 #
 # check libraries
@@ -51,6 +68,21 @@ AC_CHECK_HEADER([cuda_runtime.h], [],
 ##############################################################################80
 AC_CHECK_LIB([cudart], [cudaSetDevice], [],
   [AC_MSG_ERROR([libcudart required, but not found])], [])
+AC_CHECK_LIB([cublas], [cublasSaxpy], [],
+  [AC_MSG_ERROR([libcublas required, but not found])], [])
+AC_CHECK_LIB([pthread], [pthread_create], [],
+  [AC_MSG_ERROR([libpthread required, but not found])], [])
+AC_CHECK_LIB([iomp5], [omp_set_num_threads], [],
+  [AC_MSG_ERROR([libiomp5 required, but not found])], [])
+AC_CHECK_LIB([mkl_core], [mkl_blas_xsaxpy], [],
+  [AC_MSG_ERROR([libmkl_core required, but not found])],
+  [-lmkl_intel_lp64 -lmkl_intel_thread -liomp5 -lm])
+AC_CHECK_LIB([mkl_intel_thread], [mkl_blas_saxpy], [],
+  [AC_MSG_ERROR([libmkl_intel_thread required, but not found])],
+  [-lmkl_intel_lp64 -lmkl_core -liomp5 -lm])
+AC_CHECK_LIB([mkl_intel_lp64], [saxpy], [],
+  [AC_MSG_ERROR([libmkl_intel_lp64 required, but not found])],
+  [-lmkl_intel_thread -lmkl_core -liomp5 -lm])
 ##############################################################################80
 #
 # check Doxygen

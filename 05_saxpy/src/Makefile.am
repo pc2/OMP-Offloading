@@ -5,4 +5,6 @@ saxpy_SOURCES = saxpy.c    \
 		hsaxpy.h   \
 		hsaxpy.c   \
 		asaxpy.h   \
-		asaxpy.c
+		asaxpy.c   \
+		wtcalc.h   \
+		wtcalc.c
