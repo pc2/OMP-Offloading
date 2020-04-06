@@ -34,7 +34,7 @@
 #include "check1ns.h"
 #include "wtcalc.h"
 
-#define TWO22 (1 << 22)
+#define TWO26 (1 << 26)
 #define NLUP  (32)
 
 /**
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   /*
    * preparation
    */
-  n      = TWO22;
+  n      = TWO26;
   nbytes = sizeof(float) * n;
   iret   = 0;
   if (NULL == (x     = (float *) mkl_malloc(nbytes, (16 * 256)))) iret = -1;
@@ -131,18 +131,19 @@ int main(int argc, char *argv[])
   /*
    * saxpy on accl
    */
-  for (ial = 1; ial < 7; ++ial) {
+  for (ial = 1; ial < 8; ++ial) {
     /*
      * See asaxpy.c for details:
      *
      * ial:
      *
-     * 0: <<<             1,   1>>>, TOO SLOW! not tested
-     * 1: <<<             1, 128>>>
-     * 2: <<<           128,   1>>>
-     * 3: <<<           128, 128>>>
-     * 4: <<<n /        128, 128>>>
-     * 5: <<<n / (128 * 16), 128>>>, 16x loop unrolling
+     * 0: <<<2^0 , 2^0 >>>, TOO SLOW! not tested
+     * 1: <<<2^0 , 2^7 >>>, auto   scheduling
+     * 2: <<<2^7 , 2^0 >>>, auto   scheduling
+     * 3: <<<2^7 , 2^7 >>>, auto   scheduling
+     * 4: <<<2^16, 2^10>>>, manual scheduling
+     * 5: <<<2^15, 2^7 >>>, manual scheduling, 16x loop unrolling (2^15*2^7*16==2^26)
+     * 6: <<<2^12, 2^7 >>>, auto   scheduling, 16x loop unrolling
      * otherwise: cublasSaxpy in CUBLAS
      */
     memcpy(yaccl, y, nbytes);

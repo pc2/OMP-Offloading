@@ -48,7 +48,7 @@ void asaxpy(const int n,
   switch (ial) {
     case 0:
 /*
- * - <<<1, 1>>>
+ * - <<<2^0 , 2^0 >>>, TOO SLOW! not tested
  */
 #pragma omp target data  device(0) \
   map(to:a, n, x[0:n]) map(tofrom:y[0:n])
@@ -68,7 +68,7 @@ for (int i = 0; i < n; ++i) {
       break;
     case 1:
 /*
- * - <<<1, 128>>>
+ * - <<<2^0 , 2^7 >>>, auto   scheduling
  */
 #pragma omp target data  device(0) \
   map(to:a, n, x[0:n]) map(tofrom:y[0:n])
@@ -88,7 +88,7 @@ for (int i = 0; i < n; ++i) {
       break;
     case 2:
 /*
- * - <<<128, 1>>>
+ * - <<<2^7 , 2^0 >>>, auto   scheduling
  */
 #pragma omp target data  device(0) \
   map(to:a, n, x[0:n]) map(tofrom:y[0:n])
@@ -108,7 +108,7 @@ for (int i = 0; i < n; ++i) {
       break;
     case 3:
 /*
- * - <<<128, 128>>>
+ * - <<<2^7 , 2^7 >>>, auto   scheduling
  */
 #pragma omp target data  device(0) \
   map(to:a, n, x[0:n]) map(tofrom:y[0:n])
@@ -128,17 +128,17 @@ for (int i = 0; i < n; ++i) {
       break;
     case 4:
 /*
- * - <<<n / 128, 128>>>
+ * - <<<2^16, 2^10>>>, manual scheduling
  */
 #pragma omp target data  device(0) \
   map(to:a, n, x[0:n]) map(tofrom:y[0:n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams((1 << 15)) \
+#pragma omp target teams device(0) num_teams(65536) \
   map(to:a, n, x[0:n]) map(tofrom:y[0:n]) \
   default(none) shared(a, n, x, y)
-#pragma omp distribute parallel for num_threads(128) \
-  dist_schedule(static, 128) \
+#pragma omp distribute parallel for num_threads(1024) \
+  dist_schedule(static, 1024) \
   default(none) shared(a, n, x, y)
 for (int i = 0; i < n; ++i) {
   y[i] = a * x[i] + y[i];
@@ -148,14 +148,48 @@ for (int i = 0; i < n; ++i) {
       break;
     case 5:
 /*
- * - <<<n / (128 * 16), 128>>>
- * - 16x loop-unrolling
+ * - <<<2^15, 2^7 >>>, manual scheduling, 16x loop unrolling (2^15*2^7*16==2^26)
  */
 #pragma omp target data  device(0) \
   map(to:a, m, x[0:n]) map(tofrom:y[0:n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(2048) \
+#pragma omp target teams device(0) num_teams(32768) \
+  map(to:a, m, x[0:n]) map(tofrom:y[0:n]) \
+  default(none) shared(a, m, x, y)
+#pragma omp distribute parallel for num_threads(128) \
+  dist_schedule(static, 128) \
+  default(none) shared(a, m, x, y)
+for (int i = 0; i < m; ++i) {
+  y[i          ] = a * x[i          ] + y[i          ];
+  y[i +       m] = a * x[i +       m] + y[i +       m];
+  y[i + 0x2 * m] = a * x[i + 0x2 * m] + y[i + 0x2 * m];
+  y[i + 0x3 * m] = a * x[i + 0x3 * m] + y[i + 0x3 * m];
+  y[i + 0x4 * m] = a * x[i + 0x4 * m] + y[i + 0x4 * m];
+  y[i + 0x5 * m] = a * x[i + 0x5 * m] + y[i + 0x5 * m];
+  y[i + 0x6 * m] = a * x[i + 0x6 * m] + y[i + 0x6 * m];
+  y[i + 0x7 * m] = a * x[i + 0x7 * m] + y[i + 0x7 * m];
+  y[i + 0x8 * m] = a * x[i + 0x8 * m] + y[i + 0x8 * m];
+  y[i + 0x9 * m] = a * x[i + 0x9 * m] + y[i + 0x9 * m];
+  y[i + 0xa * m] = a * x[i + 0xa * m] + y[i + 0xa * m];
+  y[i + 0xb * m] = a * x[i + 0xb * m] + y[i + 0xb * m];
+  y[i + 0xc * m] = a * x[i + 0xc * m] + y[i + 0xc * m];
+  y[i + 0xd * m] = a * x[i + 0xd * m] + y[i + 0xd * m];
+  y[i + 0xe * m] = a * x[i + 0xe * m] + y[i + 0xe * m];
+  y[i + 0xf * m] = a * x[i + 0xf * m] + y[i + 0xf * m];
+}
+  clock_gettime(CLOCK_REALTIME, rt + 1);
+}
+      break;
+    case 6:
+/*
+ * - <<<2^12, 2^7 >>>, auto   scheduling, 16x loop unrolling
+ */
+#pragma omp target data  device(0) \
+  map(to:a, m, x[0:n]) map(tofrom:y[0:n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
+#pragma omp target teams device(0) num_teams(4096) \
   map(to:a, m, x[0:n]) map(tofrom:y[0:n]) \
   default(none) shared(a, m, x, y)
 #pragma omp distribute parallel for num_threads(128) \

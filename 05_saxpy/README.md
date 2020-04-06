@@ -17,7 +17,7 @@ where:
 
 * `a` is a scalar.
 * `x` and `y` are single-precision vectors each with n elements.
-* For testing n is assumed to be $2^{22}$.
+* For testing n is assumed to be $2^{26}$.
 * The following table only summarizes the most important points. For more
   details on the ial-th implementation see comments in `hsaxpy.c` (on host)
   and `asaxpy.c` (on accelerator).
@@ -33,13 +33,15 @@ where:
 
 | ial |  Remarks                                                               |
 |:---:|------------------------------------------------------------------------|
-|  0  | <<<             1,   1>>>, TOO SLOW! not tested                        |
-|  1  | <<<             1, 128>>>                                              |
-|  2  | <<<           128,   1>>>                                              |
-|  3  | <<<           128, 128>>>                                              |
-|  4  | <<<n /        128, 128>>>                                              |
-|  5  | <<<n / (128 * 16), 128>>>, 16x loop unrolling                          |
-|  6  | cublasSaxpy in CUBLAS                                                  |
+|  0  | <<<2^0 , 2^0 >>>, TOO SLOW! not tested                                 |
+|  1  | <<<2^0 , 2^7 >>>, auto   scheduling                                    |
+|  2  | <<<2^7 , 2^0 >>>, auto   scheduling                                    |
+|  3  | <<<2^7 , 2^7 >>>, auto   scheduling                                    |
+|  4  | <<<2^16, 2^10>>>, manual scheduling                                    |
+|  5  | <<<2^15, 2^7 >>>, manual scheduling, 16x loop unrolling                |
+|     | (2^15*2^7*16==2^26)                                                    |
+|  6  | <<<2^12, 2^7 >>>, auto   scheduling, 16x loop unrolling                |
+|  7  | cublasSaxpy in CUBLAS                                                  |
 
 # Build
 
