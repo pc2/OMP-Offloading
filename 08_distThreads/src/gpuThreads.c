@@ -9,10 +9,6 @@
  * @copyright CC BY-SA 2.0
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef _OPENMP
@@ -415,7 +411,3 @@ void gpuThreads(int i)
    */
   free(league);
 }
-
-#ifdef __cplusplus
-}
-#endif

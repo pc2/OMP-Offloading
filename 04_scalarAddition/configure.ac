@@ -23,10 +23,10 @@ fi
 ##############################################################################80
 AC_PROG_CC([clang gcc])
 AS_IF([test "${CC}" = gcc],
-  [CFLAGS="-Wall -fopenmp -foffload=nvptx-none -I${CUDAINC} $CFLAGS"
+  [CFLAGS="-Wall -O2 -fopenmp -foffload=nvptx-none -I${CUDAINC} $CFLAGS"
    LDFLAGS="-L${CUDALIB} $LDFLAGS"])
 AS_IF([test "${CC}" = clang],
-  [CFLAGS="-Wall -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -I${CUDAINC} \
+  [CFLAGS="-Wall -O2 -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda -I${CUDAINC} \
    -Xopenmp-target -march=sm_61 $CFLAGS"
    LDFLAGS="-L${CUDALIB} $LDFLAGS"])
 ##############################################################################80

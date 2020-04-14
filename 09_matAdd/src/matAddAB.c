@@ -11,10 +11,6 @@
  * @copyright CC BY-SA 2.0
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -299,7 +295,3 @@ for (int i = iblk * NTHRDS8;
     wtcalc += (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
   }
 }
-
-#ifdef __cplusplus
-}
-#endif

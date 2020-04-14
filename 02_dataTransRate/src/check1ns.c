@@ -10,10 +10,6 @@
  * @copyright CC BY-SA 2.0
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +26,3 @@ void check1ns(void)
   }
   assert(1l == res.tv_nsec);
 }
-
-#ifdef __cplusplus
-}
-#endif

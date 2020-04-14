@@ -9,10 +9,6 @@
  * @copyright CC BY-SA 2.0
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
@@ -94,7 +90,3 @@ void prtAccelInfo(int iaccel)
   printf("warp size                : %d\n", dev.warpSize);
   printf("============================================================\n");
 }
-
-#ifdef __cplusplus
-}
-#endif

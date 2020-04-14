@@ -8,14 +8,6 @@
  * @copyright CC BY-SA 2.0
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "wtcalc.h"
 
 double wtcalc;
-
-#ifdef __cplusplus
-}
-#endif

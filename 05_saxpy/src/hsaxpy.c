@@ -17,10 +17,6 @@
  * @copyright CC BY-SA 2.0
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <time.h>
 #ifdef _OPENMP
 #include <omp.h>
@@ -63,7 +59,3 @@ clock_gettime(CLOCK_REALTIME, rt + 1);
     wtcalc += (rt[1].tv_sec - rt[0].tv_sec) + 1.0e-9 * (rt[1].tv_nsec - rt[0].tv_nsec);
   }
 }
-
-#ifdef __cplusplus
-}
-#endif
