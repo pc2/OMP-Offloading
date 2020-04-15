@@ -1,0 +1,14 @@
+hallo from gpu029
+The system supports 1 ns time resolution
+total size of x and y is     512.0 MB
+tests are averaged over 32 loops
+saxpy on host (0) :   65092.0 MB/s   65093.6 MB/s maxabserr =       0.0
+saxpy on host (1) :   70769.4 MB/s   70772.0 MB/s maxabserr =       0.0
+saxpy on accl (1) :    1400.7 MB/s    4648.9 MB/s maxabserr =       0.0
+saxpy on accl (2) :    1371.6 MB/s    4653.9 MB/s maxabserr =       0.0
+saxpy on accl (3) :    2046.7 MB/s  227586.6 MB/s maxabserr =       0.0
+saxpy on accl (4) :    2062.4 MB/s  224540.3 MB/s maxabserr =       0.0
+saxpy on accl (5) :    2073.9 MB/s  276659.5 MB/s maxabserr =       0.0
+saxpy on accl (6) :    2045.0 MB/s  271431.4 MB/s maxabserr =       0.0
+saxpy on accl (7) :    2025.2 MB/s  280631.7 MB/s maxabserr =       0.0
+saxpy on accl (8) :    2025.7 MB/s  279577.4 MB/s maxabserr =       0.0

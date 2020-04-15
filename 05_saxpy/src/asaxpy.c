@@ -212,6 +212,32 @@ for (int i = 0; i < m; ++i) {
   clock_gettime(CLOCK_REALTIME, rt + 1);
 }
       break;
+    case 7:
+/*
+ * - <<<2^16, 2^9>>>:
+ *     * de-linearize the vector (convert the vector to matrix)
+ *     * collapse the ji-loop
+ *     * 2x i-loop unrolling
+ */
+#pragma omp target data  device(0) \
+  map(to:a, x[0:n]) map(tofrom:y[0:n])
+{
+  clock_gettime(CLOCK_REALTIME, rt + 0);
+#pragma omp target teams device(0) num_teams(65536) thread_limit(512) \
+  map(to:a, x[0:n]) map(tofrom:y[0:n]) \
+  default(none) shared(a, x, y)
+#pragma omp distribute parallel for num_threads(512) \
+  dist_schedule(static, 512) collapse(2) \
+  default(none) shared(a, x, y)
+for (int j = 0; j < 65536; ++j) {
+  for (int i = 0; i < 512; ++i) { /* 2x i-loop unrolling */
+    y[j * 1024 + i      ] += a * x[j * 1024 + i      ];
+    y[j * 1024 + i + 512] += a * x[j * 1024 + i + 512];
+  }
+}
+  clock_gettime(CLOCK_REALTIME, rt + 1);
+}
+      break;
     default:
 /*
  * cublasSaxpy in CUBLAS

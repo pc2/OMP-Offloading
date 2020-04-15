@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
   /*
    * saxpy on accl
    */
-  for (ial = 1; ial < 8; ++ial) {
+  for (ial = 1; ial < 9; ++ial) {
     /*
      * See asaxpy.c for details:
      *
@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
      * 4: <<<2^16, 2^10>>>, manual scheduling
      * 5: <<<2^15, 2^7 >>>, manual scheduling, 16x loop unrolling (2^15*2^7*16==2^26)
      * 6: <<<2^12, 2^7 >>>, auto   scheduling, 16x loop unrolling
+     * 7: de-linearize the vector and then collapse the ji-loop.
      * otherwise: cublasSaxpy in CUBLAS
      */
     memcpy(yaccl, y, nbytes);

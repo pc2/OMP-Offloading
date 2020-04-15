@@ -41,7 +41,8 @@ where:
 |  5  | <<<2^15, 2^7 >>>, manual scheduling, 16x loop unrolling                |
 |     | (2^15*2^7*16==2^26)                                                    |
 |  6  | <<<2^12, 2^7 >>>, auto   scheduling, 16x loop unrolling                |
-|  7  | cublasSaxpy in CUBLAS                                                  |
+|  7  | de-linearize the vector gives slightly better performance than CUBLAS  |
+|  8  | cublasSaxpy in CUBLAS                                                  |
 
 # Usage
 

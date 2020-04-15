@@ -8,6 +8,19 @@ Paderborn University. The sub-directories are generally organized as:
 * docs: documentation
 * tests: some tests
 
+Some highlights of the codes in this repository:
+
+* The performance of our `saxpy` implemented by using OpenMP GPU-offloading is
+  as good as `cublasSaxpy` in CUBLAS. See `case 7` in `05_saxpy/src/asaxpy.c`
+  for details.
+
+* The GPU shared memory has not been standardized in OpenMP API Specification
+  (Version 5.0 Nov. 2018). To optimize the performance of matrix multiplication
+  by using OpenMP GPU-offloading, i) `case 6` in `10_matMul/src/matMulAB.c`
+  implements a register blocking algorithm and ii) `case 8` in the same source
+  code file implements a common GPU-based tiled algorithm by blocking the local
+  shared memory in a very tricky manner and the OpenMP code resembles CUDA.
+
 # List of Projects
 
 * 00_build_OpenMP_offload
