@@ -21,13 +21,15 @@
 #include "cublas_v2.h"
 #include "matAddAB.h"
 
-#define NTHRDS7 (1 << 0x7)
-#define NTHRDS8 (1 << 0x8)
-#define NTHRDS9 (1 << 0x9)
+#define NTHRDS7 (1 << 0x7) /* 2^{7}  */
+#define NTHRDS8 (1 << 0x8) /* 2^{8}  */
+#define NTHRDS9 (1 << 0x9) /* 2^{9}  */
 
-#define LTEAMSD (1 << 0xD)
-#define LTEAMSE (1 << 0xE)
-#define LTEAMSF (1 << 0xF)
+#define LTEAMSD (1 << 0xD) /* 2^{13} */
+#define LTEAMSE (1 << 0xE) /* 2^{14} */
+#define LTEAMSF (1 << 0xF) /* 2^{15} */
+
+#define BLKROW  (512) /* 2x number of threads in each team */
 
 double wtcalc;
 
@@ -41,7 +43,6 @@ void matAddAB_accl(float *a,
         *a_dev = NULL,
         *b_dev = NULL;
   struct timespec rt[2];
-  int halfn = n / 2;
 
   switch (ial) {
     case 0:
@@ -54,7 +55,7 @@ void matAddAB_accl(float *a,
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSF) \
+#pragma omp target teams device(0) num_teams(LTEAMSF) thread_limit(NTHRDS9) \
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
   default(none) shared(a, b, n)
 #pragma omp distribute parallel for num_threads(NTHRDS9) \
@@ -79,7 +80,7 @@ for (int j = 0; j < n; ++j) { /* sequential */
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSF) \
+#pragma omp target teams device(0) num_teams(LTEAMSF) thread_limit(NTHRDS9) \
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
   default(none) shared(a, b, n)
 #pragma omp distribute parallel for num_threads(NTHRDS9) \
@@ -105,7 +106,7 @@ for (int i = 0; i < n; ++i) { /* sequential */
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSF) \
+#pragma omp target teams device(0) num_teams(LTEAMSF) thread_limit(NTHRDS9) \
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
   default(none) shared(a, b, n)
 #pragma omp distribute parallel for num_threads(NTHRDS9) \
@@ -130,7 +131,7 @@ for (int j = 0; j < n; ++j) {
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSF) \
+#pragma omp target teams device(0) num_teams(LTEAMSF) thread_limit(NTHRDS9) \
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
   default(none) shared(a, b, n)
 #pragma omp distribute parallel for num_threads(NTHRDS9) \
@@ -149,25 +150,25 @@ for (int i = 0; i < n; ++i) {
  * - ji-loop
  * - 2^8 threads per team and 2^f teams
  * - collapse(3)
- * - 2x i-loop unrolling by number of threads
+ * - 2x i-loop unrolling (stride of 2^8 rows)
  */
 #pragma omp target data  device(0) \
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSF) \
+#pragma omp target teams device(0) num_teams(LTEAMSF) thread_limit(NTHRDS8) \
   map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
   default(none) shared(a, b, n)
 #pragma omp distribute parallel for num_threads(NTHRDS8) \
   dist_schedule(static, NTHRDS8) collapse(3) \
   default(none) shared(a, b, n)
 for (int j = 0; j < n; ++j) {
-for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) {
-for (int i = 0; i < NTHRDS8; ++i) {
-  a[j * n + iblk * NTHRDS9 + i          ] +=
-  b[j * n + iblk * NTHRDS9 + i          ];
-  a[j * n + iblk * NTHRDS9 + i + NTHRDS8] +=
-  b[j * n + iblk * NTHRDS9 + i + NTHRDS8];
+for (int iblk = 0; iblk < n / BLKROW; ++iblk) {
+for (int i = 0; i < NTHRDS8; ++i) { /* 2x unrolling */
+  a[j * n + iblk * BLKROW + i          ] +=
+  b[j * n + iblk * BLKROW + i          ];
+  a[j * n + iblk * BLKROW + i + NTHRDS8] +=
+  b[j * n + iblk * BLKROW + i + NTHRDS8];
 } /* end i-loop */
 } /* end iblk-loop */
 } /* end j-loop */
@@ -177,35 +178,27 @@ for (int i = 0; i < NTHRDS8; ++i) {
     case 5:
 /*
  * - ji-loop
- * - 2^7 threads per team and 2^f teams
- * - collapse(3)
- * - 4x i-loop unrolling
- *      * 2x by number of threads
- *      * 2x by half of rows
+ * - 2^8 threads per team and 2^f teams
+ * - collapse(2)
+ * - 2x i-loop unrolling (stride of n/2 rows)
  */
 #pragma omp target data  device(0) \
-  map(to:n, halfn, b[0:n * n]) map(tofrom:a[0:n * n])
+  map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSF) \
-  map(to:n, halfn, b[0:n * n]) map(tofrom:a[0:n * n]) \
-  default(none) shared(a, b, n, halfn)
-#pragma omp distribute parallel for num_threads(NTHRDS7) \
-  dist_schedule(static, NTHRDS7) collapse(3) \
-  default(none) shared(a, b, n, halfn)
+#pragma omp target teams device(0) num_teams(LTEAMSF) thread_limit(NTHRDS8) \
+  map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
+  default(none) shared(a, b, n)
+#pragma omp distribute parallel for num_threads(NTHRDS8) \
+  dist_schedule(static, NTHRDS8) collapse(2) \
+  default(none) shared(a, b, n)
 for (int j = 0; j < n; ++j) {
-for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) {
-for (int i = 0; i < NTHRDS7; ++i) {
-  a[j * n + iblk * NTHRDS8 + i                   ] +=
-  b[j * n + iblk * NTHRDS8 + i                   ];
-  a[j * n + iblk * NTHRDS8 + i          + NTHRDS7] +=
-  b[j * n + iblk * NTHRDS8 + i          + NTHRDS7];
-  a[j * n + iblk * NTHRDS8 + i + halfn           ] +=
-  b[j * n + iblk * NTHRDS8 + i + halfn           ];
-  a[j * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7] +=
-  b[j * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7];
+for (int i = 0; i < (n >> 1); ++i) { /* 2x unrolling */
+  a[j * n + i           ] +=
+  b[j * n + i           ];
+  a[j * n + i + (n >> 1)] +=
+  b[j * n + i + (n >> 1)];
 } /* end i-loop */
-} /* end iblk-loop */
 } /* end j-loop */
   clock_gettime(CLOCK_REALTIME, rt + 1);
 }
@@ -213,42 +206,32 @@ for (int i = 0; i < NTHRDS7; ++i) {
     case 6:
 /*
  * - ji-loop
- * - 2^7 threads per team and 2^e teams
+ * - 2^8 threads per team and 2^14 teams
  * - collapse(3)
- * - 4x i-loop unrolling
- *      * 2x by number of threads
- *      * 2x by half of rows
- * - 2x j-loop unrolling
+ * - 2x j-loop unrolling (stride of 1   col )
+ * - 2x i-loop unrolling (stride of 2^8 rows)
  */
 #pragma omp target data  device(0) \
-  map(to:n, halfn, b[0:n * n]) map(tofrom:a[0:n * n])
+  map(to:n, b[0:n * n]) map(tofrom:a[0:n * n])
 {
   clock_gettime(CLOCK_REALTIME, rt + 0);
-#pragma omp target teams device(0) num_teams(LTEAMSE) \
-  map(to:n, halfn, b[0:n * n]) map(tofrom:a[0:n * n]) \
-  default(none) shared(a, b, n, halfn)
-#pragma omp distribute parallel for num_threads(NTHRDS7) \
-  dist_schedule(static, NTHRDS7) collapse(3) \
-  default(none) shared(a, b, n, halfn)
-for (int j = 0; j < halfn; ++j) {
-for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) {
-for (int i = 0; i < NTHRDS7; ++i) {
-  a[ j          * n + iblk * NTHRDS8 + i                   ] +=
-  b[ j          * n + iblk * NTHRDS8 + i                   ];
-  a[ j          * n + iblk * NTHRDS8 + i          + NTHRDS7] +=
-  b[ j          * n + iblk * NTHRDS8 + i          + NTHRDS7];
-  a[ j          * n + iblk * NTHRDS8 + i + halfn           ] +=
-  b[ j          * n + iblk * NTHRDS8 + i + halfn           ];
-  a[ j          * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7] +=
-  b[ j          * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7];
-  a[(j + halfn) * n + iblk * NTHRDS8 + i                   ] +=
-  b[(j + halfn) * n + iblk * NTHRDS8 + i                   ];
-  a[(j + halfn) * n + iblk * NTHRDS8 + i          + NTHRDS7] +=
-  b[(j + halfn) * n + iblk * NTHRDS8 + i          + NTHRDS7];
-  a[(j + halfn) * n + iblk * NTHRDS8 + i + halfn           ] +=
-  b[(j + halfn) * n + iblk * NTHRDS8 + i + halfn           ];
-  a[(j + halfn) * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7] +=
-  b[(j + halfn) * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7];
+#pragma omp target teams device(0) num_teams(LTEAMSE) thread_limit(NTHRDS8) \
+  map(to:n, b[0:n * n]) map(tofrom:a[0:n * n]) \
+  default(none) shared(a, b, n)
+#pragma omp distribute parallel for num_threads(NTHRDS8) \
+  dist_schedule(static, NTHRDS8) collapse(3) \
+  default(none) shared(a, b, n)
+for (int j = 0; j < n; j += 2) { /* 2x unrolling */
+for (int iblk = 0; iblk < n / BLKROW; ++iblk) {
+for (int i = 0; i < NTHRDS8; ++i) { /* 2x unrolling */
+  a[ j      * n + iblk * BLKROW + i          ] +=
+  b[ j      * n + iblk * BLKROW + i          ];
+  a[ j      * n + iblk * BLKROW + i + NTHRDS8] +=
+  b[ j      * n + iblk * BLKROW + i + NTHRDS8];
+  a[(j + 1) * n + iblk * BLKROW + i          ] +=
+  b[(j + 1) * n + iblk * BLKROW + i          ];
+  a[(j + 1) * n + iblk * BLKROW + i + NTHRDS8] +=
+  b[(j + 1) * n + iblk * BLKROW + i + NTHRDS8];
 } /* end i-loop */
 } /* end iblk-loop */
 } /* end j-loop */

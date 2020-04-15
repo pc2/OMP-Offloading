@@ -28,11 +28,12 @@ the numerical results are also verified.
 |  3  | ji-loop, 2^9 threads * 2^f teams, collapse(2),                         |
 |     | coalesced memory access                                                |
 |  4  | ji-loop, 2^8 threads * 2^f teams, collapse(3),                         |
-|     | 2x i-loop unrolling                                                    |
-|  5  | ji-loop, 2^7 threads * 2^f teams, collapse(3),                         |
-|     | 4x i-loop unrolling                                                    |
-|  6  | ji-loop, 2^7 threads * 2^e teams, collapse(3),                         |
-|     | 4x i-loop unrolling, 2x j-loop unrolling                               |
+|     | 2x i-loop unrolling (stride of 2^8 rows)                               |
+|  5  | ji-loop, 2^8 threads * 2^f teams, collapse(2),                         |
+|     | 2x i-loop unrolling (stride of n/2 rows)                               |
+|  6  | ji-loop, 2^8 threads * 2^e teams, collapse(3),                         |
+|     | 2x i-loop unrolling (stride of 2^8 rows),                              |
+|     | 2x j-loop unrolling (stride of 1   col )                               |
 |  7  | cublasSaxpy in CUBLAS                                                  |
 
 # Usage

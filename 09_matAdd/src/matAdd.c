@@ -93,11 +93,11 @@ int main(int argc, char *argv[])
      * 4: ji-loop, 2^8 threads * 2^f teams, collapse(3),
      *    2x i-loop unrolling
      *
-     * 5: ji-loop, 2^7 threads * 2^f teams, collapse(3),
-     *    4x i-loop unrolling
+     * 5: ji-loop, 2^8 threads * 2^f teams, collapse(2),
+     *    2x i-loop unrolling
      *
-     * 6: ji-loop, 2^7 threads * 2^e teams, collapse(3),
-     *    4x i-loop unrolling, 2x j-loop unrolling
+     * 6: ji-loop, 2^8 threads * 2^e teams, collapse(3),
+     *    2x i-loop unrolling, 2x j-loop unrolling
      *
      * otherwise: cublasSaxpy in CUBLAS
      */

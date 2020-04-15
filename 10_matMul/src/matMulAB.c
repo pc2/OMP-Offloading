@@ -30,8 +30,7 @@
 #define LTEAMSF (1 << 0xF) /* 2^{15} */
 #define LTEAMSG (1 << 020) /* 2^{16} */
 
-#define NPITCH  (1024)
-#define BLKROW  (512)
+#define BLKROW  (512) /* 4x number of threads in each team */
 #define BLKDIM  (16)
 
 double wtcalc;
@@ -595,12 +594,12 @@ for (int i = 0; i < n / BLKDIM; ++i) {
   dist_schedule(static, NTHRDS7) collapse(2) \
   default(none) shared(a, b, c, n)
 for (int j = 0; j < n; ++j) {
-for (int i = 0; i < NPITCH; ++i) { /* 4x unrolling */
+for (int i = 0; i < (n >> 2); ++i) { /* 4x unrolling */
   float rc0, rc1, rc2, rc3;
-  rc0 = c[j * n + i             ];
-  rc1 = c[j * n + i + NPITCH    ];
-  rc2 = c[j * n + i + NPITCH * 2];
-  rc3 = c[j * n + i + NPITCH * 3];
+  rc0 = c[j * n + i               ];
+  rc1 = c[j * n + i + (n >> 2)    ];
+  rc2 = c[j * n + i + (n >> 2) * 2];
+  rc3 = c[j * n + i + (n >> 2) * 3];
   for (int k = 0; k < n; k += 4) { /* 4x unrolling */
     /* register for b: 4x k-loop */
     float rb0, rb1, rb2, rb3;
@@ -608,27 +607,27 @@ for (int i = 0; i < NPITCH; ++i) { /* 4x unrolling */
     rb1  = b[j * n + k + 1];
     rb2  = b[j * n + k + 2];
     rb3  = b[j * n + k + 3];
-    rc0 += a[ k      * n + i             ] * rb0;
-    rc0 += a[(k + 1) * n + i             ] * rb1;
-    rc0 += a[(k + 2) * n + i             ] * rb2;
-    rc0 += a[(k + 3) * n + i             ] * rb3;
-    rc1 += a[ k      * n + i + NPITCH    ] * rb0;
-    rc1 += a[(k + 1) * n + i + NPITCH    ] * rb1;
-    rc1 += a[(k + 2) * n + i + NPITCH    ] * rb2;
-    rc1 += a[(k + 3) * n + i + NPITCH    ] * rb3;
-    rc2 += a[ k      * n + i + NPITCH * 2] * rb0;
-    rc2 += a[(k + 1) * n + i + NPITCH * 2] * rb1;
-    rc2 += a[(k + 2) * n + i + NPITCH * 2] * rb2;
-    rc2 += a[(k + 3) * n + i + NPITCH * 2] * rb3;
-    rc3 += a[ k      * n + i + NPITCH * 3] * rb0;
-    rc3 += a[(k + 1) * n + i + NPITCH * 3] * rb1;
-    rc3 += a[(k + 2) * n + i + NPITCH * 3] * rb2;
-    rc3 += a[(k + 3) * n + i + NPITCH * 3] * rb3;
+    rc0 += a[ k      * n + i               ] * rb0;
+    rc0 += a[(k + 1) * n + i               ] * rb1;
+    rc0 += a[(k + 2) * n + i               ] * rb2;
+    rc0 += a[(k + 3) * n + i               ] * rb3;
+    rc1 += a[ k      * n + i + (n >> 2)    ] * rb0;
+    rc1 += a[(k + 1) * n + i + (n >> 2)    ] * rb1;
+    rc1 += a[(k + 2) * n + i + (n >> 2)    ] * rb2;
+    rc1 += a[(k + 3) * n + i + (n >> 2)    ] * rb3;
+    rc2 += a[ k      * n + i + (n >> 2) * 2] * rb0;
+    rc2 += a[(k + 1) * n + i + (n >> 2) * 2] * rb1;
+    rc2 += a[(k + 2) * n + i + (n >> 2) * 2] * rb2;
+    rc2 += a[(k + 3) * n + i + (n >> 2) * 2] * rb3;
+    rc3 += a[ k      * n + i + (n >> 2) * 3] * rb0;
+    rc3 += a[(k + 1) * n + i + (n >> 2) * 3] * rb1;
+    rc3 += a[(k + 2) * n + i + (n >> 2) * 3] * rb2;
+    rc3 += a[(k + 3) * n + i + (n >> 2) * 3] * rb3;
   }
-  c[j * n + i             ] = rc0;
-  c[j * n + i + NPITCH    ] = rc1;
-  c[j * n + i + NPITCH * 2] = rc2;
-  c[j * n + i + NPITCH * 3] = rc3;
+  c[j * n + i               ] = rc0;
+  c[j * n + i + (n >> 2)    ] = rc1;
+  c[j * n + i + (n >> 2) * 2] = rc2;
+  c[j * n + i + (n >> 2) * 3] = rc3;
 } /* end i-loop */
 } /* end j-loop */
   clock_gettime(CLOCK_REALTIME, rt + 1);

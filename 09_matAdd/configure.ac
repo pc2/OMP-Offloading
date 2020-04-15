@@ -41,7 +41,7 @@ AC_PROG_CC([clang gcc])
 AS_IF([test "${CC}" = gcc],
   [CFLAGS="-Wall -O2 -fopenmp -foffload=nvptx-none $CFLAGS"])
 AS_IF([test "${CC}" = clang],
-  [CFLAGS="-Wall -O2 -fopenmp -fopenmp-targets=nvptx64-nvidia-cuda \
+  [CFLAGS="-Wall -Werror -O2 -fopenmp=libomp -fopenmp-targets=nvptx64-nvidia-cuda \
            -Xopenmp-target -march=sm_61 $CFLAGS"])
 ##############################################################################80
 #
