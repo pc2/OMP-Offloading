@@ -163,10 +163,11 @@ for (int i = 0; i < n; ++i) {
   default(none) shared(a, b, n)
 for (int j = 0; j < n; ++j) {
 for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) {
-for (int i = iblk * NTHRDS9;
-         i < iblk * NTHRDS9 + NTHRDS8; ++i) {
-  a[j * n + i          ] += b[j * n + i          ];
-  a[j * n + i + NTHRDS8] += b[j * n + i + NTHRDS8];
+for (int i = 0; i < NTHRDS8; ++i) {
+  a[j * n + iblk * NTHRDS9 + i          ] +=
+  b[j * n + iblk * NTHRDS9 + i          ];
+  a[j * n + iblk * NTHRDS9 + i + NTHRDS8] +=
+  b[j * n + iblk * NTHRDS9 + i + NTHRDS8];
 } /* end i-loop */
 } /* end iblk-loop */
 } /* end j-loop */
@@ -194,12 +195,15 @@ for (int i = iblk * NTHRDS9;
   default(none) shared(a, b, n, halfn)
 for (int j = 0; j < n; ++j) {
 for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) {
-for (int i = iblk * NTHRDS8;
-         i < iblk * NTHRDS8 + NTHRDS7; ++i) {
-  a[j * n + i                   ] += b[j * n + i                   ];
-  a[j * n + i          + NTHRDS7] += b[j * n + i          + NTHRDS7];
-  a[j * n + i + halfn           ] += b[j * n + i + halfn           ];
-  a[j * n + i + halfn  + NTHRDS7] += b[j * n + i + halfn  + NTHRDS7];
+for (int i = 0; i < NTHRDS7; ++i) {
+  a[j * n + iblk * NTHRDS8 + i                   ] +=
+  b[j * n + iblk * NTHRDS8 + i                   ];
+  a[j * n + iblk * NTHRDS8 + i          + NTHRDS7] +=
+  b[j * n + iblk * NTHRDS8 + i          + NTHRDS7];
+  a[j * n + iblk * NTHRDS8 + i + halfn           ] +=
+  b[j * n + iblk * NTHRDS8 + i + halfn           ];
+  a[j * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7] +=
+  b[j * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7];
 } /* end i-loop */
 } /* end iblk-loop */
 } /* end j-loop */
@@ -228,16 +232,23 @@ for (int i = iblk * NTHRDS8;
   default(none) shared(a, b, n, halfn)
 for (int j = 0; j < halfn; ++j) {
 for (int iblk = 0; iblk < n / NTHRDS9; ++iblk) {
-for (int i = iblk * NTHRDS8;
-         i < iblk * NTHRDS8 + NTHRDS7; ++i) {
-  a[ j          * n + i                   ] += b[ j          * n + i                   ];
-  a[ j          * n + i          + NTHRDS7] += b[ j          * n + i          + NTHRDS7];
-  a[ j          * n + i + halfn           ] += b[ j          * n + i + halfn           ];
-  a[ j          * n + i + halfn  + NTHRDS7] += b[ j          * n + i + halfn  + NTHRDS7];
-  a[(j + halfn) * n + i                   ] += b[(j + halfn) * n + i                   ];
-  a[(j + halfn) * n + i          + NTHRDS7] += b[(j + halfn) * n + i          + NTHRDS7];
-  a[(j + halfn) * n + i + halfn           ] += b[(j + halfn) * n + i + halfn           ];
-  a[(j + halfn) * n + i + halfn  + NTHRDS7] += b[(j + halfn) * n + i + halfn  + NTHRDS7];
+for (int i = 0; i < NTHRDS7; ++i) {
+  a[ j          * n + iblk * NTHRDS8 + i                   ] +=
+  b[ j          * n + iblk * NTHRDS8 + i                   ];
+  a[ j          * n + iblk * NTHRDS8 + i          + NTHRDS7] +=
+  b[ j          * n + iblk * NTHRDS8 + i          + NTHRDS7];
+  a[ j          * n + iblk * NTHRDS8 + i + halfn           ] +=
+  b[ j          * n + iblk * NTHRDS8 + i + halfn           ];
+  a[ j          * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7] +=
+  b[ j          * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7];
+  a[(j + halfn) * n + iblk * NTHRDS8 + i                   ] +=
+  b[(j + halfn) * n + iblk * NTHRDS8 + i                   ];
+  a[(j + halfn) * n + iblk * NTHRDS8 + i          + NTHRDS7] +=
+  b[(j + halfn) * n + iblk * NTHRDS8 + i          + NTHRDS7];
+  a[(j + halfn) * n + iblk * NTHRDS8 + i + halfn           ] +=
+  b[(j + halfn) * n + iblk * NTHRDS8 + i + halfn           ];
+  a[(j + halfn) * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7] +=
+  b[(j + halfn) * n + iblk * NTHRDS8 + i + halfn  + NTHRDS7];
 } /* end i-loop */
 } /* end iblk-loop */
 } /* end j-loop */

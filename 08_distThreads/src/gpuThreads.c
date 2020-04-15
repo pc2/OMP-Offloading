@@ -4,6 +4,8 @@
  *
  * This source file contains function definition for organizing GPU threads.
  *
+ * thread_limit for the teams construct is omitted for clarity.
+ *
  * @author Xin Wu (PC²)
  * @data 12.03.2020
  * @copyright CC BY-SA 2.0
@@ -304,6 +306,17 @@ void gpuThreads(int i)
  * 5. Nested loop with collapse(3).
  * 6. It features coalesced GPU memory access and good performance.
  * 7. +10 to each unrolled thread is used to label the 2x irow-loop unrolling.
+ *
+ * Caveat: especially for the innermost loop
+ *
+ * OpenMP API Specification: Version 5.0 November 2018
+ *
+ * https://www.openmp.org/spec-html/5.0/openmpsu44.html
+ *
+ * If a collapse clause is specified with a parameter value greater than 1, then
+ * the iterations of the associated loops to which the clause applies are
+ * collapsed into one larger iteration space with *unspecified ordering*.
+ *
  */
       ncol   = 6;
       nrow   =12;
@@ -320,16 +333,15 @@ void gpuThreads(int i)
   default(none) shared(ncol, nrow, wblk, lteams, nthrds, league)
   for (int icol = 0; icol < ncol; ++icol) {
     for (int iblk = 0; iblk < nrow / wblk; ++iblk) {
-      for (int irow = iblk * wblk;
-               irow < iblk * wblk + nthrds; ++irow) {
-        league[icol * nrow + irow         ].itd = omp_get_thread_num();
-        league[icol * nrow + irow         ].ntd = omp_get_num_threads();
-        league[icol * nrow + irow         ].itm = omp_get_team_num();
-        league[icol * nrow + irow         ].ltm = omp_get_num_teams();
-        league[icol * nrow + irow + nthrds].itd = omp_get_thread_num() + 10;
-        league[icol * nrow + irow + nthrds].ntd = omp_get_num_threads();
-        league[icol * nrow + irow + nthrds].itm = omp_get_team_num();
-        league[icol * nrow + irow + nthrds].ltm = omp_get_num_teams();
+      for (int irow = 0; irow < nthrds; ++irow) {
+league[icol * nrow + iblk * wblk + irow         ].itd = omp_get_thread_num();
+league[icol * nrow + iblk * wblk + irow         ].ntd = omp_get_num_threads();
+league[icol * nrow + iblk * wblk + irow         ].itm = omp_get_team_num();
+league[icol * nrow + iblk * wblk + irow         ].ltm = omp_get_num_teams();
+league[icol * nrow + iblk * wblk + irow + nthrds].itd = omp_get_thread_num() + 10;
+league[icol * nrow + iblk * wblk + irow + nthrds].ntd = omp_get_num_threads();
+league[icol * nrow + iblk * wblk + irow + nthrds].itm = omp_get_team_num();
+league[icol * nrow + iblk * wblk + irow + nthrds].ltm = omp_get_num_teams();
       }
     }
   }
@@ -344,6 +356,9 @@ void gpuThreads(int i)
  * 5. Nested loop with collapse(3).
  * 6. +10 to each unrolled team   is used to label the 2x icol-loop unrolling.
  * 7. +10 to each unrolled thread is used to label the 2x irow-loop unrolling.
+ *
+ * More work for each thread is an approach to achieve high performance.
+ *
  */
       ncol   = 6;
       nrow   =12;
@@ -360,24 +375,23 @@ void gpuThreads(int i)
   default(none) shared(ncol, nrow, wblk, lteams, nthrds, league)
   for (int icol = 0; icol < ncol; icol += 2) {
     for (int iblk = 0; iblk < nrow / wblk; ++iblk) {
-      for (int irow = iblk * wblk;
-               irow < iblk * wblk + nthrds; ++irow) {
-        league[ icol      * nrow + irow         ].itd = omp_get_thread_num();
-        league[ icol      * nrow + irow         ].ntd = omp_get_num_threads();
-        league[ icol      * nrow + irow         ].itm = omp_get_team_num();
-        league[ icol      * nrow + irow         ].ltm = omp_get_num_teams();
-        league[ icol      * nrow + irow + nthrds].itd = omp_get_thread_num() + 10;
-        league[ icol      * nrow + irow + nthrds].ntd = omp_get_num_threads();
-        league[ icol      * nrow + irow + nthrds].itm = omp_get_team_num();
-        league[ icol      * nrow + irow + nthrds].ltm = omp_get_num_teams();
-        league[(icol + 1) * nrow + irow         ].itd = omp_get_thread_num();
-        league[(icol + 1) * nrow + irow         ].ntd = omp_get_num_threads();
-        league[(icol + 1) * nrow + irow         ].itm = omp_get_team_num() + 10;
-        league[(icol + 1) * nrow + irow         ].ltm = omp_get_num_teams();
-        league[(icol + 1) * nrow + irow + nthrds].itd = omp_get_thread_num() + 10;
-        league[(icol + 1) * nrow + irow + nthrds].ntd = omp_get_num_threads();
-        league[(icol + 1) * nrow + irow + nthrds].itm = omp_get_team_num() + 10;
-        league[(icol + 1) * nrow + irow + nthrds].ltm = omp_get_num_teams();
+      for (int irow = 0; irow < nthrds; ++irow) {
+league[ icol      * nrow + iblk * wblk + irow         ].itd = omp_get_thread_num();
+league[ icol      * nrow + iblk * wblk + irow         ].ntd = omp_get_num_threads();
+league[ icol      * nrow + iblk * wblk + irow         ].itm = omp_get_team_num();
+league[ icol      * nrow + iblk * wblk + irow         ].ltm = omp_get_num_teams();
+league[ icol      * nrow + iblk * wblk + irow + nthrds].itd = omp_get_thread_num() + 10;
+league[ icol      * nrow + iblk * wblk + irow + nthrds].ntd = omp_get_num_threads();
+league[ icol      * nrow + iblk * wblk + irow + nthrds].itm = omp_get_team_num();
+league[ icol      * nrow + iblk * wblk + irow + nthrds].ltm = omp_get_num_teams();
+league[(icol + 1) * nrow + iblk * wblk + irow         ].itd = omp_get_thread_num();
+league[(icol + 1) * nrow + iblk * wblk + irow         ].ntd = omp_get_num_threads();
+league[(icol + 1) * nrow + iblk * wblk + irow         ].itm = omp_get_team_num() + 10;
+league[(icol + 1) * nrow + iblk * wblk + irow         ].ltm = omp_get_num_teams();
+league[(icol + 1) * nrow + iblk * wblk + irow + nthrds].itd = omp_get_thread_num() + 10;
+league[(icol + 1) * nrow + iblk * wblk + irow + nthrds].ntd = omp_get_num_threads();
+league[(icol + 1) * nrow + iblk * wblk + irow + nthrds].itm = omp_get_team_num() + 10;
+league[(icol + 1) * nrow + iblk * wblk + irow + nthrds].ltm = omp_get_num_teams();
       }
     }
   }

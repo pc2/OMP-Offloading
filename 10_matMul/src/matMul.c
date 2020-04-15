@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   /*
    * matMul on accl
    */
-  for (ial = 0; ial < 9; ++ial) {
+  for (ial = 0; ial < 11; ++ial) {
     /*
      * See matMulAB.c for details:
      *
@@ -96,15 +96,28 @@ int main(int argc, char *argv[])
      *    4x k-loop unrolling
      *
      * 5: jik-loop, 2^7 threads * 2^f teams, collapse(3),
-     *    4x i-loop unrolling (2x + 2x),
+     *    4x i-loop unrolling (stride of 2^7 rows),
      *    4x k-loop unrolling,
      *    rb: 4x data reuse
      *
-     * 6: jik-loop, 2^7 threads * 2^e teams, collapse(3),
-     *    2x j-loop unrolling,
-     *    4x i-loop unrolling (2x + 2x),
+     * 6: jik-loop, 2^7 threads * 2^d teams, collapse(3),
+     *    4x j-loop unrolling (stride of 1   col ),
+     *    4x i-loop unrolling (stride of 2^7 rows),
      *    4x k-loop unrolling,
-     *    ra: 2x data reuse,
+     *    rb: 4x data reuse,
+     *    ra: 4x data reuse,
+     *    register blocking
+     *
+     * 7: based on (2), jik-loop, 2^8 threads * 2^g teams, collapse(2)
+     *
+     * 8: based on (7), jik-loop, 2^8 threads * 2^g teams, collapse(2)
+     *    GPU shared memory for data re-use,
+     *    16x k-loop unrolling,
+     *    shared memory blocking
+     *
+     * 9: based on (5), jik-loop, 2^7 threads * 2^f teams, collapse(2),
+     *    4x i-loop unrolling (stride of n/4 rows),
+     *    4x k-loop unrolling,
      *    rb: 4x data reuse
      *
      * otherwise: cublasSgemm in CUBLAS
